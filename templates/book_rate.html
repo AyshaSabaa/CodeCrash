@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="book-details">
+    <h2>{{ book.title }}</h2>
+    <div class="book-info">
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+        <p><strong>Available Copies:</strong> {{ book.quantity }}</p>
+        {% if avg_rating %}
+        <p><strong>Average Rating:</strong> {{ avg_rating }} / 5</p>
+        {% else %}
+        <p><strong>Average Rating:</strong> No ratings yet.</p>
+        {% endif %}
+    </div>
+    {% if current_user.is_authenticated %}
+    <div class="rating-form">
+        <h3>{% if user_rating %}Update Your Rating{% else %}Rate This Book{% endif %}</h3>
+        <form method="POST" action="{{ url_for('rate_book', book_id=book.id) }}">
+            {{ form.hidden_tag() }}  <!-- CSRF token -->
+            <div class="star-rating">
+                {% for i in range(1, 6) %}
+                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}"
+                       {% if user_rating and user_rating.rating == i %}checked{% endif %} required>
+                <label for="star{{ i }}">★</label>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="comment">Your Review:</label>
+                <textarea id="comment" name="comment" rows="4">{{ user_rating.comment if user_rating else '' }}</textarea>
+            </div>
+            <button type="submit">Submit Rating</button>
+        </form>
+    </div>
+    {% endif %}
+    <div class="reviews">
+        <h3>Reviews</h3>
+        {% if book.ratings and book.ratings|length > 0 %}
+            {% for rating in book.ratings %}
+            <div class="review">
+                <div class="review-header">
+                    <span class="stars">
+                        {% for i in range(rating.rating) %}★{% endfor %}
+                        {% for i in range(5 - rating.rating) %}☆{% endfor %}
+                    </span>
+                    <span class="reviewer">by {{ rating.user.username }}</span>
+                    <span class="date">{{ rating.created_date.strftime('%Y-%m-%d') }}</span>
+                </div>
+                {% if rating.comment %}
+                <p class="review-comment">{{ rating.comment }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No reviews yet. Be the first to rate this book!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

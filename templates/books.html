@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="books">
+    <h2>Available Books</h2>
+    <div class="books-grid">
+        {% for book in books %}
+        <div class="book-card">
+            <h3>{{ book.title }}</h3>
+            <p><strong>Author:</strong> {{ book.author }}</p>
+            <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+            <p><strong>Available:</strong> {{ book.quantity }}</p>
+            {% if book.quantity > 0 %}
+            <a href="{{ url_for('borrow_book', book_id=book.id) }}" class="button">Borrow</a>
+            {% else %}
+            <button disabled>Not Available</button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
